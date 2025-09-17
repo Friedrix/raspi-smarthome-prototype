@@ -8,7 +8,7 @@ Ziel des Projekts ist es, verschiedene Umweltdaten wie Temperatur, Luftfeuchtigk
 ## 📌 Features
 - 🌡️ Erfassen von Umweltdaten (Temperatur, Luftfeuchtigkeit, Luftdruck, Luftqualität, Helligkeit)  
 - 🐍 Sensor-Ansteuerung über **Python**  
-- 💾 Speicherung der Messwerte (CSV oder SQLite)  
+- 💾 Speicherung der Messwerte (phpmyadmin)  
 - 🌐 **Symfony-Weboberfläche** zur Anzeige im lokalen Netzwerk  
 - 🔄 API-Schnittstelle für den Datenaustausch zwischen Python und Symfony  
 - 📈 Visualisierung der Werte im Browser  
@@ -16,31 +16,10 @@ Ziel des Projekts ist es, verschiedene Umweltdaten wie Temperatur, Luftfeuchtigk
 ---
 
 ## 🛠️ Technologien
-- **Hardware:** Raspberry Pi 5, Sensoren (BME280, MQ-135, BH1750 etc.)  
+- **Hardware:** Raspberry Pi 5, Sensoren
 - **Sprachen:** Python 3, PHP 8  
 - **Frameworks:** Symfony, Bootstrap (Frontend)  
-- **Datenhaltung:** SQLite oder CSV  
-- **Tools:** GitHub, VS Code, Git  
+- **Datenhaltung:** Mysql (phpmyadmin) 
+- **Tools:** GitHub, VS Code,
 
 ---
-
-## 📂 Projektstruktur
-
-```bash
-.
-├── sensor/               # Python-Skripte für Sensoren
-│   ├── temperature.py
-│   ├── humidity.py
-│   ├── light.py
-│   └── ...
-├── webapp/               # Symfony Webanwendung
-│   ├── config/
-│   ├── public/
-│   ├── src/
-│   └── templates/
-├── data/                 # Gespeicherte CSV/SQLite Daten
-│   └── logs.csv
-├── docs/                 # Dokumentation & Projektantrag
-│   └── Projektantrag.md
-├── README.md             # Dieses Dokument
-└── requirements.txt      # Python Abhängigkeiten
