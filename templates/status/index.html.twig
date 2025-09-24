@@ -1,20 +1,189 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello StatusController!{% endblock %}
+{% block title %}Sensorstatus{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/status.css') }}">
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    {% set currentPage = 'status' %}
+    {% set daylightValue = null %}
+    {% if daylight is defined %}
+        {% set daylightValue = daylight %}
+    {% elseif isDaylight is defined %}
+        {% set daylightValue = isDaylight ? 'Tag' : 'Nacht' %}
+    {% endif %}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <div class="page page--status">
+        <header class="page__header">
+            <a href="{{ path('app_home') }}" class="page__logo">
+                <span class="page__logo-mark">SH</span>
+                <span class="page__logo-text">
+                    <strong>SmartHome</strong>
+                    <small>Prototype</small>
+                </span>
+            </a>
+            <nav class="page__nav" aria-label="Hauptnavigation">
+                <a href="{{ path('app_home') }}" class="page__nav-link{{ currentPage == 'home' ? ' is-active' : '' }}">Übersicht</a>
+                <a href="{{ path('app_status') }}" class="page__nav-link{{ currentPage == 'status' ? ' is-active' : '' }}" aria-current="page">Status</a>
+                <a href="{{ path('app_account') }}" class="page__nav-link{{ currentPage == 'account' ? ' is-active' : '' }}">Konto</a>
+            </nav>
+            <a href="{{ path('app_login') }}" class="page__cta">Anmelden</a>
+        </header>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/raspi-smarthome-prototype/src/Controller/StatusController.php</code></li>
-        <li>Your template at <code>/var/www/raspi-smarthome-prototype/templates/status/index.html.twig</code></li>
-    </ul>
-</div>
+        <main class="page__main">
+            <section class="section-heading">
+                <span class="badge">Live Daten</span>
+                <h1>Status deiner Umgebung</h1>
+                <p>Alle Anzeigen basieren auf den Messwerten, die dein Controller liefert. Die Weboberfläche verändert keine Einstellungen, sondern macht die Daten sichtbar.</p>
+            </section>
+
+            {% set measurementCards = [
+                {
+                    label: 'Temperatur',
+                    unit: '°C',
+                    value: temperature is defined ? temperature : null,
+                    description: 'Aktuelle Lufttemperatur aus deinem Sensor.'
+                },
+                {
+                    label: 'Relative Luftfeuchtigkeit',
+                    unit: '%',
+                    value: humidity is defined ? humidity : null,
+                    description: 'Zeigt die Feuchte deiner Umgebung.'
+                },
+                {
+                    label: 'Luftdruck',
+                    unit: 'hPa',
+                    value: pressure is defined ? pressure : null,
+                    description: 'Atmosphärischer Druckwert für Analysen.'
+                },
+                {
+                    label: 'Helligkeitsstufe',
+                    unit: null,
+                    value: brightness is defined ? brightness : null,
+                    description: 'Rohwert oder Stufe deiner Lichtmessung.'
+                },
+                {
+                    label: 'Tag/Nacht-Erkennung',
+                    unit: null,
+                    value: daylightValue,
+                    description: 'Ergebnis der Logik zur Tageslicht-Erkennung.'
+                }
+            ] %}
+
+            <section class="status-metrics">
+                <div class="status-metrics__grid">
+                    {% for card in measurementCards %}
+                        <article class="metric-card">
+                            <header class="metric-card__header">
+                                <span class="metric-card__label">{{ card.label }}</span>
+                                {% if card.description %}
+                                    <p>{{ card.description }}</p>
+                                {% endif %}
+                            </header>
+                            {% set hasValue = not (card.value is same as(null) or card.value is same as('')) %}
+                            <div class="metric-card__value">
+                                {% if hasValue %}
+                                    <strong>{{ card.value }}</strong>
+                                    {% if card.unit %}
+                                        <span>{{ card.unit }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="metric-card__placeholder">Keine Daten</span>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="status-meta">
+                <div class="status-meta__item">
+                    <span>Letztes Update</span>
+                    {% if lastUpdate is defined and lastUpdate is not same as(null) and lastUpdate is not same as('') %}
+                        <strong>{{ lastUpdate }}</strong>
+                    {% else %}
+                        <strong>Noch keine Messung</strong>
+                    {% endif %}
+                </div>
+                <div class="status-meta__item">
+                    <span>Datenquelle</span>
+                    <strong>{{ dataSource|default('Noch nicht definiert') }}</strong>
+                </div>
+            </section>
+
+            <section class="status-history">
+                <article class="panel panel--history">
+                    <div class="panel__header">
+                        <span class="badge">Verlauf</span>
+                        <h2>Messhistorie</h2>
+                        <p>Der Controller kann hier zeitliche Reihen deiner Sensorwerte übergeben.</p>
+                    </div>
+                    {% set history = history|default([]) %}
+                    {% if history|length %}
+                        <div class="history-table__wrapper">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Zeitpunkt</th>
+                                        <th>Temperatur (°C)</th>
+                                        <th>Feuchte (%)</th>
+                                        <th>Druck (hPa)</th>
+                                        <th>Helligkeit</th>
+                                        <th>Tag/Nacht</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in history %}
+                                        <tr>
+                                            <td>{{ entry.time|default(entry.timestamp|default(entry.recordedAt|default('–'))) }}</td>
+                                            <td>{{ entry.temperature|default('–') }}</td>
+                                            <td>{{ entry.humidity|default('–') }}</td>
+                                            <td>{{ entry.pressure|default('–') }}</td>
+                                            <td>{{ entry.brightness|default('–') }}</td>
+                                            <td>{{ entry.daylight|default('–') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="panel__empty">Noch keine historischen Messwerte vorhanden.</p>
+                    {% endif %}
+                </article>
+            </section>
+
+            <section class="status-alerts">
+                <article class="panel panel--alerts">
+                    <div class="panel__header">
+                        <span class="badge">Hinweise</span>
+                        <h2>Statusmeldungen</h2>
+                        <p>Zeige hier Hinweise aus deinem Backend an – zum Beispiel Validierungen oder Schwellenwerte.</p>
+                    </div>
+                    {% set alerts = alerts|default([]) %}
+                    {% if alerts|length %}
+                        <ul class="alert-list">
+                            {% for alert in alerts %}
+                                <li class="alert-list__item alert-list__item--{{ alert.type|default('info') }}">
+                                    <div class="alert-list__content">
+                                        <strong>{{ alert.title|default('Hinweis') }}</strong>
+                                        {% if alert.message is defined and alert.message is not same as('') %}
+                                            <p>{{ alert.message }}</p>
+                                        {% endif %}
+                                        {% if alert.time is defined and alert.time is not same as('') %}
+                                            <span>{{ alert.time }}</span>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="panel__empty">Binde eigene Statusmeldungen aus dem Controller ein.</p>
+                    {% endif %}
+                </article>
+            </section>
+        </main>
+    </div>
 {% endblock %}

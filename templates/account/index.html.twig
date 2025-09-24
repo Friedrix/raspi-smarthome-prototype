@@ -1,20 +1,210 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AccountController!{% endblock %}
+{% block title %}Kontoübersicht{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/account.css') }}">
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    {% set currentPage = 'account' %}
+    {% set account = account|default({}) %}
+    <div class="page page--account">
+        <header class="page__header">
+            <a href="{{ path('app_home') }}" class="page__logo">
+                <span class="page__logo-mark">SH</span>
+                <span class="page__logo-text">
+                    <strong>SmartHome</strong>
+                    <small>Prototype</small>
+                </span>
+            </a>
+            <nav class="page__nav" aria-label="Hauptnavigation">
+                <a href="{{ path('app_home') }}" class="page__nav-link{{ currentPage == 'home' ? ' is-active' : '' }}">Übersicht</a>
+                <a href="{{ path('app_status') }}" class="page__nav-link{{ currentPage == 'status' ? ' is-active' : '' }}">Status</a>
+                <a href="{{ path('app_account') }}" class="page__nav-link{{ currentPage == 'account' ? ' is-active' : '' }}" aria-current="page">Konto</a>
+            </nav>
+            <a href="{{ path('app_login') }}" class="page__cta page__cta--ghost">Abmelden</a>
+        </header>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <main class="page__main">
+            <section class="section-heading">
+                <span class="badge">Benutzerprofil</span>
+                <h1>Konto &amp; Zugriff verwalten</h1>
+                <p>Alle Informationen kommen direkt aus deinem Controller. Hinterlege dort die passenden Daten, um sie hier sichtbar zu machen.</p>
+            </section>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/raspi-smarthome-prototype/src/Controller/AccountController.php</code></li>
-        <li>Your template at <code>/var/www/raspi-smarthome-prototype/templates/account/index.html.twig</code></li>
-    </ul>
-</div>
+            <section class="account-layout">
+                <div class="account-layout__main">
+                    <article class="profile-card">
+                        <header class="profile-card__header">
+                            {% if account.initials is defined and account.initials is not same as('') %}
+                                <span class="profile-card__avatar" aria-hidden="true">{{ account.initials }}</span>
+                            {% endif %}
+                            <div class="profile-card__info">
+                                <h2>{{ account.fullName|default('Benutzername hinterlegen') }}</h2>
+                                {% if account.role is defined and account.role is not same as('') %}
+                                    <p>{{ account.role }}</p>
+                                {% elseif account.memberSince is defined and account.memberSince is not same as('') %}
+                                    <p>Mitglied seit {{ account.memberSince }}</p>
+                                {% else %}
+                                    <p>Pflege zusätzliche Informationen im Controller.</p>
+                                {% endif %}
+                            </div>
+                            {% if account.status is defined and account.status is not same as('') %}
+                                <span class="profile-card__status">{{ account.status }}</span>
+                            {% endif %}
+                        </header>
+
+                        {% set statistics = account.statistics|default([]) %}
+                        {% if statistics|length %}
+                            <dl class="profile-card__stats">
+                                {% for item in statistics %}
+                                    <div>
+                                        <dt>{{ item.label|default('') }}</dt>
+                                        <dd>{{ item.value|default('') }}</dd>
+                                    </div>
+                                {% endfor %}
+                            </dl>
+                        {% else %}
+                            <p class="profile-card__empty">Lege im Controller Kennzahlen als <code>statistics</code>-Array an.</p>
+                        {% endif %}
+
+                        {% set tags = account.tags|default([]) %}
+                        {% if tags|length %}
+                            <div class="profile-card__chips">
+                                {% for tag in tags %}
+                                    <span class="chip">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="profile-card__actions">
+                            <a href="{{ path('app_status') }}" class="button button--primary">Live-Daten öffnen</a>
+                            <a href="{{ path('app_home') }}" class="button button--ghost">Zur Übersicht</a>
+                        </div>
+                    </article>
+
+                    <article class="panel panel--grid">
+                        <h2>Kontakt &amp; Sicherheit</h2>
+                        <div class="panel__grid">
+                            {% set contact = account.contact|default({}) %}
+                            <div class="panel__block">
+                                <h3>Kontaktdaten</h3>
+                                <ul class="panel__list">
+                                    {% if contact.email is defined and contact.email is not same as('') %}
+                                        <li><strong>E-Mail</strong><span>{{ contact.email }}</span></li>
+                                    {% endif %}
+                                    {% if contact.phone is defined and contact.phone is not same as('') %}
+                                        <li><strong>Telefon</strong><span>{{ contact.phone }}</span></li>
+                                    {% endif %}
+                                    {% if contact.address is defined and contact.address is not same as('') %}
+                                        <li><strong>Adresse</strong><span>{{ contact.address }}</span></li>
+                                    {% endif %}
+                                    {% if contact is empty %}
+                                        <li class="panel__empty">Kontaktdaten werden vom Controller bereitgestellt.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            {% set security = account.security|default([]) %}
+                            <div class="panel__block">
+                                <h3>Sicherheitsstatus</h3>
+                                {% if security|length %}
+                                    <ul class="panel__list panel__list--indicators">
+                                        {% for item in security %}
+                                            <li>
+                                                <span class="dot{{ item.enabled ? ' dot--active' : '' }}" aria-hidden="true"></span>
+                                                {{ item.label|default('') }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="panel__empty">Aktiviere Sicherheitsmerkmale im Controller.</p>
+                                {% endif %}
+                                {% if account.securityHint is defined and account.securityHint is not same as('') %}
+                                    <p class="panel__hint">{{ account.securityHint }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+
+                    {% set preferences = account.preferences|default([]) %}
+                    <article class="panel panel--settings">
+                        <h2>Benachrichtigungen &amp; Routinen</h2>
+                        <p class="panel__subtitle">Steuere hier, was dein Konto standardmäßig überwacht. Alle Werte kommen aus dem Controller.</p>
+                        {% if preferences|length %}
+                            <ul class="toggle-list">
+                                {% for preference in preferences %}
+                                    <li class="toggle-list__item{{ preference.enabled ? ' is-active' : '' }}">
+                                        <div class="toggle-list__content">
+                                            <h3>{{ preference.title|default('') }}</h3>
+                                            {% if preference.description is defined and preference.description is not same as('') %}
+                                                <p>{{ preference.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <span class="toggle-switch" role="switch" aria-checked="{{ preference.enabled ? 'true' : 'false' }}">
+                                            <span class="toggle-switch__handle"></span>
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="panel__empty">Hinterlege Präferenzen als <code>preferences</code>-Array.</p>
+                        {% endif %}
+                    </article>
+                </div>
+
+                <aside class="account-layout__sidebar">
+                    <article class="panel panel--highlight">
+                        <h2>Integrationen</h2>
+                        {% set integrations = account.integrations|default([]) %}
+                        {% if integrations|length %}
+                            <ul class="integration-list">
+                                {% for integration in integrations %}
+                                    <li class="integration-list__item">
+                                        <div class="integration-list__info">
+                                            <span class="integration-list__name">{{ integration.name|default('') }}</span>
+                                            {% if integration.detail is defined and integration.detail is not same as('') %}
+                                                <span class="integration-list__detail">{{ integration.detail }}</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if integration.status is defined and integration.status is not same as('') %}
+                                            <span class="integration-list__status integration-list__status--{{ integration.variant|default('default') }}">{{ integration.status }}</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="panel__empty">Verbinde Integrationen, um sie hier aufzulisten.</p>
+                        {% endif %}
+                    </article>
+
+                    <article class="panel panel--list">
+                        <h2>Aktivitäten</h2>
+                        {% set activities = account.activity|default([]) %}
+                        {% if activities|length %}
+                            <ul class="activity-list">
+                                {% for activity in activities %}
+                                    <li class="activity-list__item">
+                                        <span class="activity-list__marker" aria-hidden="true"></span>
+                                        <div class="activity-list__content">
+                                            <h3>{{ activity.title|default('') }}</h3>
+                                            {% if activity.description is defined and activity.description is not same as('') %}
+                                                <p>{{ activity.description }}</p>
+                                            {% endif %}
+                                            {% if activity.time is defined and activity.time is not same as('') %}
+                                                <span>{{ activity.time }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="panel__empty">Historie folgt, sobald der Controller Einträge liefert.</p>
+                        {% endif %}
+                    </article>
+                </aside>
+            </section>
+        </main>
+    </div>
 {% endblock %}
