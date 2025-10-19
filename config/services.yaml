@@ -16,5 +16,12 @@ services:
     App\:
         resource: '../src/'
 
+    App\Service\DatabaseConnection:
+        arguments:
+            $host: 'localhost'
+            $dbname: 'sensordaten'
+            $user: 'mqtt_logger'
+            $password: 'projektSchule'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

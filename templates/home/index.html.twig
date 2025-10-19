@@ -1,124 +1,92 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Raspi SmartHome Prototype{% endblock %}
+{% block title %}SmartHome Prototype – Übersicht{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('styles/home.css') }}">
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 {% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-    {% set currentPage = 'home' %}
-    <div class="page page--home">
-        <header class="page__header">
-            <a href="{{ path('app_home') }}" class="page__logo">
-                <span class="page__logo-mark">SH</span>
-                <span class="page__logo-text">
-                    <strong>SmartHome</strong>
-                    <small>Prototype</small>
-                </span>
-            </a>
-            <nav class="page__nav" aria-label="Hauptnavigation">
-                <a href="{{ path('app_home') }}" class="page__nav-link{{ currentPage == 'home' ? ' is-active' : '' }}"{% if currentPage == 'home' %} aria-current="page"{% endif %}>Übersicht</a>
-                <a href="{{ path('app_status') }}" class="page__nav-link{{ currentPage == 'status' ? ' is-active' : '' }}">Status</a>
-                <a href="{{ path('app_account') }}" class="page__nav-link{{ currentPage == 'account' ? ' is-active' : '' }}">Konto</a>
-            </nav>
-            <a href="{{ path('app_login') }}" class="page__cta">Anmelden</a>
-        </header>
+{% set currentPage = 'home' %}
 
-        <main class="page__main">
-            <section class="hero">
-                <div class="hero__content">
-                    <span class="badge">Projektüberblick</span>
-                    <h1>Digitale Sicht auf dein Raumklima</h1>
-                    <p>
-                        Der Raspi SmartHome Prototype empfängt Messwerte von vernetzten Sensoren, bereitet sie im Backend auf und zeigt sie in dieser Weboberfläche konzentriert an.
-                        Die Anwendung ist bewusst lesend ausgelegt – Steuerungen finden nicht über die Webapp statt.
-                    </p>
-                    <div class="hero__actions">
-                        <a href="{{ path('app_status') }}" class="button button--primary">Live-Daten ansehen</a>
-                        <a href="{{ path('app_account') }}" class="button button--ghost">Kontoeinstellungen</a>
-                    </div>
-                </div>
-                <div class="hero__panel" aria-labelledby="home-overview">
-                    <div class="hero__panel-inner">
-                        <h2 id="home-overview">Was macht die Anwendung?</h2>
-                        <p>Unsere Weboberfläche stellt eine ruhige Bühne für deine Sensorik dar und konzentriert sich auf das Wesentliche.</p>
-                        <ul>
-                            <li>Empfängt Messwerte vom Raspberry&nbsp;Pi und speichert sie im Backend.</li>
-                            <li>Bereitet die Daten für eine klare, verständliche Darstellung auf.</li>
-                            <li>Fokussiert sich vollständig auf Monitoring ohne Konfigurationsoptionen.</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+<div class="page page--home">
+  <header class="page__header">
+    <a href="{{ path('app_home') }}" class="page__logo">
+      <span class="page__logo-mark">SH</span>
+      <span class="page__logo-text">
+        <strong>SmartHome</strong>
+        <small>Prototype</small>
+      </span>
+    </a>
+    <nav class="page__nav">
+      <a href="{{ path('app_home') }}" class="page__nav-link{{ currentPage == 'home' ? ' is-active' : '' }}">Übersicht</a>
+      <a href="{{ path('app_status') }}" class="page__nav-link{{ currentPage == 'status' ? ' is-active' : '' }}">Status</a>
+    </nav>
+  </header>
 
-            <section class="info">
-                <div class="info__intro">
-                    <span class="badge">Funktionsweise</span>
-                    <h2>Wir beobachten – du interpretierst</h2>
-                    <p>
-                        Die Steuerung deiner Sensorik bleibt auf Hardware- und Controller-Ebene. In der Webapp findest du ausschließlich die aufbereiteten Informationen, die du zur Einschätzung deines Raumklimas benötigst.
-                    </p>
-                </div>
-                <div class="info__grid">
-                    <article class="info-card">
-                        <h3>Sensoren</h3>
-                        <p>Temperatur-, Luftfeuchte-, Druck- und Lichtsensoren senden kontinuierlich Messwerte an dein Backend.</p>
-                    </article>
-                    <article class="info-card">
-                        <h3>Controller</h3>
-                        <p>Symfony-Controller validieren die eingehenden Daten und reichen sie an die Templates weiter.</p>
-                    </article>
-                    <article class="info-card">
-                        <h3>Frontend</h3>
-                        <p>Die Twig-Templates visualisieren die Datenpunkte in klar strukturierten Abschnitten und Karten.</p>
-                    </article>
-                </div>
-            </section>
-
-<div class="example-wrapper">
-    <section class="sensors">
-        <div class="sensors__header">
-            <span class="badge">Messgrößen</span>
-            <h2>Diese Werte bereiten wir auf</h2>
-            <p>Alle Messungen stammen direkt aus deiner Installation und werden unverändert dargestellt.</p>
+  <main class="page__main">
+    <section class="hero">
+      <div class="hero__content">
+        <span class="badge">Projektüberblick</span>
+        <h1>Digitale Sicht auf dein Raumklima</h1>
+        <p>
+          Dein Raspberry Pi sendet präzise Sensordaten in Echtzeit an die Datenbank.
+          Diese Webapp zeigt sie dir klar, schnell und ästhetisch an.
+        </p>
+        <div class="hero__actions">
+          <a href="{{ path('app_status') }}" class="button button--primary">Live-Daten ansehen</a>
         </div>
-        <div class="sensors__grid">
-            <article class="sensor-card">
-                <h3>Temperatur (°C)</h3>
-                <p>Zeigt das aktuelle Raumklima in Grad Celsius und macht Trends sichtbar.</p>
-            </article>
-            <article class="sensor-card">
-                <h3>Relative Luftfeuchtigkeit (%)</h3>
-                <p>Hilft dir, ein gesundes Raumklima zwischen Komfortzone und Schimmelprävention zu halten.</p>
-            </article>
-            <article class="sensor-card">
-                <h3>Luftdruck (hPa)</h3>
-                <p>Macht atmosphärische Schwankungen transparent – ideal für Wetter- und Lüftungsauswertungen.</p>
-            </article>
-            <article class="sensor-card">
-                <h3>Helligkeitsstufe</h3>
-                <p>Zeigt, wie viel Licht auf deine Sensoren fällt und bildet die Grundlage für die Tag/Nacht-Erkennung.</p>
-            </article>
-            <article class="sensor-card">
-                <h3>Tag/Nacht-Erkennung</h3>
-                <p>Ergibt sich aus der Helligkeit und signalisiert dir, ob dein System gerade Tag oder Nacht erkennt.</p>
-            </article>
+      </div>
+
+      <div class="hero__panel">
+        <div class="hero__panel-inner">
+          <h2>Was macht die Anwendung?</h2>
+          <p>Unsere Weboberfläche bildet dein Raumklima digital ab – minimalistisch, aber präzise.</p>
+          <ul>
+            <li>Erfasst Daten vom Raspberry Pi 5 mit BME280 &amp; TSL2591.</li>
+            <li>Speichert sie sicher in der Datenbank und aktualisiert regelmäßig.</li>
+            <li>Visualisiert alle Werte übersichtlich – ohne manuelles Nachladen.</li>
+          </ul>
         </div>
+      </div>
     </section>
+
+    {# Messwerte Karten #}
+    <section class="sensors">
+      <div class="sensors__header">
+        <span class="badge">Messgrößen</span>
+        <h2>Diese Werte bereiten wir auf</h2>
+        <p>Alle Messungen kommen im Sekundentakt aus der Datenbank und werden unverändert dargestellt.</p>
+      </div>
+
+      <div class="sensors__grid">
+        <article class="sensor-card">
+          <div class="sensor-icon">🌡️</div>
+          <h3>Temperatur (°C)</h3>
+          <p>Aktuelle Raumtemperatur.</p>
+        </article>
+
+        <article class="sensor-card">
+          <div class="sensor-icon">💧</div>
+          <h3>Relative Luftfeuchtigkeit (%)</h3>
+          <p>Wasserdampfanteil der Luft.</p>
+        </article>
+
+        <article class="sensor-card">
+          <div class="sensor-icon">⚙️</div>
+          <h3>Luftdruck (hPa)</h3>
+          <p>Atmosphärischer Luftdruck.</p>
+        </article>
+
+        <article class="sensor-card">
+          <div class="sensor-icon">💡</div>
+          <h3>Helligkeit (Lux)</h3>
+          <p>Lichtstärke am Sensor.</p>
+        </article>
+      </div>
+    </section>
+
+  </main>
 </div>
-            <section class="cta">
-                <div class="cta__card">
-                    <h2>Bereit für Echtzeitdaten?</h2>
-                    <p>Verbinde deine Sensoren mit dem Backend, liefere die Messwerte an den Status-Controller und sieh hier unmittelbar die Ergebnisse.</p>
-                    <a href="{{ path('app_status') }}" class="button button--primary">Zum Status-Dashboard</a>
-                </div>
-            </section>
-        </main>
-    </div>
 {% endblock %}
