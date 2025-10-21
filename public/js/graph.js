@@ -6,12 +6,14 @@
   const toNum = (v) => (v === null || v === '' || v === undefined ? null : Number(v));
   const fmt   = (v, d = 2) => (v == null ? '—' : Number(v).toFixed(d));
 
-  // ---------- Initiale History ----------
+  // Initiale History
+  // ----------------------------------------------------------------------------------------
   const initialScript  = $('#history-data');
   const initialHistory = initialScript ? JSON.parse(initialScript.textContent || '[]') : [];
   let currentRange = '60min';
 
-  // ---------- Labels formatieren je nach Range ----------
+  // Labels formatieren je nach Range
+  //----------------------------------------------------------------------------------------
   function labelFor(ts, range) {
     if (range === '60min') return ts.slice(11, 16); 
     if (range === '24h')   return ts.slice(5, 10) + ' ' + ts.slice(11, 13) + 'h';
@@ -30,7 +32,8 @@
     };
   }
 
-  // ---------- Chart-Factory ----------
+  // Chart Builder
+  // ----------------------------------------------------------------------------------------
   const makeChart = (canvasId, series, key, title, unit) => {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
@@ -82,7 +85,8 @@
     });
   };
 
-  // ---------- Charts initial auf 60min rendern ----------
+  // Charts bauen und auf 60min stellen
+  // ------------------------------------------------------------------------------------------------- 
   let charts = {};
   (function initialRender() {
     const series = makeSeries(initialHistory, '60min');
@@ -92,7 +96,8 @@
     charts.brightness  = makeChart('chart-brightness',  series, 'brightness',  'Helligkeit',  'Lux');
   })();
 
-  // ---------- Live-Kacheln (alle 3 s) ----------
+  // Kacheln Aktualisieren (alle 3 s)
+  // ----------------------------------------------------------------------------------------
   async function refreshLive() {
     try {
       const res = await fetch('/status/live', { cache: 'no-store' });
@@ -113,12 +118,12 @@
     } catch (_) {}
   }
 
-  // ---------- History für gewählte Range laden ----------
+  // History für gewählte Zeitrange laden
+  // ----------------------------------------------------------------------------------------
   const chartsEmptyEl = $('#charts-empty');
 
   function seriesHasAllNull(seriesArr) {
     return seriesArr.every(v => v === null || Number.isNaN(v));
-    // Hinweis: Wir prüfen je Datensatz separat unten.
   }
 
   function updateChartsFromSeries(series) {
@@ -143,7 +148,6 @@
     currentRange = confirmedRange;
 
     const series = makeSeries(history, confirmedRange);
-    // „Keine Daten“ anzeigen, wenn alle 4 Reihen nur nulls sind
     const noTemp = seriesHasAllNull(series.temperature);
     const noHum  = seriesHasAllNull(series.humidity);
     const noPres = seriesHasAllNull(series.pressure);
@@ -156,6 +160,7 @@
   }
 
   // Dropdown binden
+  // --------------------------------------------------
   const rangeSelect = $('#range-select');
   if (rangeSelect) {
     rangeSelect.addEventListener('change', () => {
@@ -168,6 +173,7 @@
   setInterval(refreshLive, 1000);
 
   // Charts nur neu laden, wenn Range 1min/60min ist: jede Minute sinnvoll
+  // ----------------------------------------------
   setInterval(() => {
     if (currentRange === '60min') {
       loadHistory(currentRange).catch(() => {});

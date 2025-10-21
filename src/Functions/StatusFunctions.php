@@ -5,9 +5,8 @@ use PDO;
 
 class StatusFunctions
 {
-    /**
-     * Letzte Messung des Raspberry Pi ausgeben
-     */
+    // Letzten Messwert ausgeben (aktuelle Werte)
+    // ------------------------------------------------------------------------
     public function getLatest(PDO $pdo): ?array
     {
         $sql = "SELECT temperature, humidity, pressure, brightness, timestamp
@@ -18,12 +17,11 @@ class StatusFunctions
         return $row ?: null;
     }
 
-    /**
-     * Allgemeine History je nach Range.
-     * - 1h    -> 60 Minuten - Ein Punkt = Eine Minute
-     * - 24h   -> 24 Stunden - Ein Punkt = Eine Stunde
-     * - 7d    -> 7 Tage     - Ein Punkt = Ein Tag
-     */
+    // Allgemeine History je nach Range.
+    // - 1h    -> 60 Minuten - Ein Punkt = Eine Minute
+    // - 24h   -> 24 Stunden - Ein Punkt = Eine Stunde
+    // - 7d    -> 7 Tage     - Ein Punkt = Ein Tag
+    // ---------------------------------------------------------------
     public function getHistory(PDO $pdo, string $range): array
     {
         switch ($range) {
@@ -37,7 +35,8 @@ class StatusFunctions
         }
     }
 
-    /** Chartanzeige letzte 60min */
+    // Chartanzeige letzte 60min
+    // ---------------------------------------------------------------------------------------------
     private function historyLastHourMinutes(PDO $pdo): array
     {
         $sql = <<<SQL
@@ -64,7 +63,8 @@ class StatusFunctions
         return $this->runHistory($pdo, $sql);
     }
 
-    /** Chartanzeige letzt 24h. */
+    // Chartanzeige letzt 24h.
+    // -------------------------------------------------------------------------------------------
     private function historyLast24hHours(PDO $pdo): array
     {
         $sql = <<<SQL
@@ -91,7 +91,8 @@ class StatusFunctions
         return $this->runHistory($pdo, $sql);
     }
 
-    /** Chartanzeige letzte 7 Tage. */
+    // Chartanzeige letzte 7 Tage.
+    // -------------------------------------------------------------------------------------------
     private function historyLast7dDays(PDO $pdo): array
     {
         $sql = <<<SQL
@@ -118,7 +119,8 @@ class StatusFunctions
         return $this->runHistory($pdo, $sql);
     }
 
-    /** Helfer: SQL ausführen und Zahlen sauber typisieren. */
+    // SQL ausführen und Zahlen sauber typisieren.
+    // ---------------------------------------------------------------------------
     private function runHistory(PDO $pdo, string $sql): array
     {
         $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);

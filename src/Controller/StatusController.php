@@ -18,7 +18,8 @@ final class StatusController extends AbstractController
         $pdo    = $db->getConnection();
         $latest = $fx->getLatest($pdo);
 
-        // Default: 60min-Ansicht initial einbetten
+        // 60 Minuten Histore als Standard Laden
+        //---------------------------------------------------
         $history = $fx->getHistory($pdo, '60min');
 
         return $this->render('status/index.html.twig', [
@@ -31,9 +32,8 @@ final class StatusController extends AbstractController
         ]);
     }
 
-    /**
-     * Live-Werte für die Kacheln (wird alle 2s vom Frontend gepollt).
-     */
+    // Live Daten als JSON
+    //-----------------------------------------------------------------------------
     #[Route('/status/live', name: 'app_status_live')]
     public function live(DatabaseConnection $db, StatusFunctions $fx): JsonResponse
     {
@@ -44,26 +44,6 @@ final class StatusController extends AbstractController
             'pressure'    => null,
             'brightness'  => null,
             'timestamp'   => null,
-        ]);
-    }
-
-    /**
-     * Historie per Range (1min|60min|24h|week)
-     * Beispiel: /status/history?range=24h
-     */
-    #[Route('/status/history', name: 'app_status_history')]
-    public function history(Request $req, DatabaseConnection $db, StatusFunctions $fx): JsonResponse
-    {
-        $range   = $req->query->get('range', '60min');
-        $allowed = ['1min','60min','24h','week'];
-        if (!in_array($range, $allowed, true)) {
-            $range = '60min';
-        }
-
-        $rows = $fx->getHistory($db->getConnection(), $range);
-        return $this->json([
-            'range'   => $range,
-            'history' => $rows,
         ]);
     }
 }
