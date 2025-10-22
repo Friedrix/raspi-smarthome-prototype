@@ -46,4 +46,25 @@ final class StatusController extends AbstractController
             'timestamp'   => null,
         ]);
     }
+
+    // NEU: History-Endpoint für das Dropdown (60min | 24h | week)
+    // ----------------------------------------------------------------
+    #[Route('/status/history', name: 'app_status_history', methods: ['GET'])]
+    public function history(Request $request, DatabaseConnection $db, StatusFunctions $fx): JsonResponse
+    {
+        $range = (string) $request->query->get('range', '60min');
+        $allowed = ['60min', '24h', 'week'];
+        if (!in_array($range, $allowed, true)) {
+            $range = '60min';
+        }
+
+        $pdo = $db->getConnection();
+        $history = $fx->getHistory($pdo, $range);
+
+        // graph.js erwartet { range, history }
+        return $this->json([
+            'range'   => $range,
+            'history' => $history,
+        ]);
+    }
 }
